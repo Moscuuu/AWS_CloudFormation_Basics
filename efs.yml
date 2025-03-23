@@ -35,13 +35,6 @@ Resources:
       SubnetId: !ImportValue network:PublicSubnet2
       SecurityGroups:
         - !Ref EFSSecurityGroup
-  MountTarget3:
-    Type: AWS::EFS::MountTarget
-    Properties:
-      FileSystemId: !Ref EFS
-      SubnetId: !ImportValue network:PrivateSubnet2
-      SecurityGroups:
-        - !Ref EFSSecurityGroup
            
 Outputs:
   EFS:
@@ -49,13 +42,3 @@ Outputs:
     Value: !Ref EFS
     Export:
       Name: EFS
-  MountTargetDNS1:
-    Description: DNS name of the EFS mount target
-    Value: !GetAtt MountTarget1.IpAddress
-    Export:
-      Name: MountTargetDNS
-  MountTargetDNS2:
-    Description: DNS name of the EFS mount target
-    Value: !GetAtt MountTarget2.IpAddress
-    Export:
-      Name: MountTargetDNS2

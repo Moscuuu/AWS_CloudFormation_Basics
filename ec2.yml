@@ -49,6 +49,21 @@ Resources:
             #!/bin/bash
             set -ex  # Exit immediately on error
 
+            EFS="${EFS}"
+
+            echo "EFS: $EFS"
+
+            sudo yum -y install amazon-efs-utils
+
+            INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+            echo "INSTANCE_ID: $INSTANCE_ID"
+
+            mkdir /mnt/efs
+
+            sudo mount -t efs -o tls $EFS:/ /mnt/efs
+
+            mkdir -p /mnt/efs/logs/$INSTANCE_ID
+
             exec > /var/log/userdata.log 2>&1  # Capture all output to userdata.log
 
             sudo yum install -y git
@@ -62,6 +77,8 @@ Resources:
             echo "DB_USER: $DB_USER"
             echo "DB_PASS: $DB_PASS"
             echo "DB_HOST: $DB_HOST"
+            echo "EFS: $EFS"
+
 
             # Clone the repository
             sudo git clone https://github.com/looking4ward/CloudShirt.git /opt/CloudShirt || { echo "Git clone failed"; exit 1; }
@@ -83,10 +100,12 @@ Resources:
             cd /opt/release
             ls -l  # Verify files exist
 
-            nohup dotnet Web.dll --urls "http://0.0.0.0:5000" > /var/log/dotnet.log 2>&1 &
+            nohup dotnet Web.dll --urls "http://0.0.0.0:5000" > /mnt/efs/logs/$INSTANCE_ID/dotnet.log 2>&1 &
           - RDSENDPOINT: !ImportValue DBEndpoint
             DB_USER1: !ImportValue DBUsername
             DB_PASS1: !ImportValue DBPassword
+            EFS: !ImportValue EFS
+
       
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -117,11 +136,7 @@ Resources:
       PolicyType: TargetTrackingScaling
       TargetTrackingConfiguration:
         PredefinedMetricSpecification:
-          PredefinedMetricType: ASGAverageNetworkOut
-          ResourceLabel: !Join 
-            - "/"
-            - - !GetAtt ALB.LoadBalancerFullName
-              - !GetAtt TargetGroup.TargetGroupFullName        
+          PredefinedMetricType: ASGAverageNetworkOut   
         TargetValue: 10
 
   ScaleOutSchedule:
@@ -178,8 +193,6 @@ Resources:
       LoadBalancerArn: !Ref ALB
       Port: 80
       Protocol: HTTP
-
-
 Outputs:
   ELB:
     Description: DNS name of the Elastic Load Balancer.
