@@ -5,7 +5,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Handler: trigger.handler
-      Role: arn:aws:iam::<id>:role/LabRole
+      Role: arn:aws:iam::591998391872:role/LabRole
       FunctionName: FileUploadProcessor
       Runtime: nodejs18.x 
       Code:
