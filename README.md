@@ -143,4 +143,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Contributors
 
-- Aleksander Andrzej Moszyński &  - Course: Cloud Automation Concepts at Saxion University of Applied Sciences
+- Aleksander Andrzej Moszyński & Alex Avila Gomez - Course: Cloud Automation Concepts at Saxion University of Applied Sciences
